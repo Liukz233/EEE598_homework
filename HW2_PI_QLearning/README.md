@@ -49,7 +49,8 @@ All five Q-learning seeds give the same greedy policy (gap 0).
 
 ## AI disclosure
 
-Generative AI (Claude, Anthropic) was used to help draft and debug the code, mainly the
-logging, table and plotting utilities, and to edit the wording of the report. The team
-checked the policy-iteration values by hand, reviewed the code, and is responsible for all
-reported results.
+Generative AI (Claude, Anthropic) was used to help draft and debug the code, including the
+policy-iteration and Q-learning implementations and the logging, table and plotting
+utilities, and to help draft and edit the report. The team checked the policy-iteration
+values by hand, reviewed the code, reproduced all results, and is responsible for everything
+reported.
