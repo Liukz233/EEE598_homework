@@ -1,0 +1,80 @@
+=== Policy iteration from the stochastic pi_0 ===
+
+--- Round 0: evaluate pi_0 ---
+pi_0: a: A_b:0.60 / A_c:0.40, b: A_d:0.70 / A_e:0.30, c: A_e:0.50 / A_f:0.50
+state   a       b       c       d       e       f       g       h     
+------  ------  ------  ------  ------  ------  ------  ------  ------
+V^pi_0  9.2272  6.6200  8.0000  4.0000  4.0000  3.0000  1.0000  0.0000
+
+Improvement: one-step lookahead Q(s,a) using V^pi_0
+s  a    Q(s,a)           
+-  ---  ------  ---------
+a  A_b  8.8960  <- argmin
+a  A_c  9.7240           
+b  A_d  6.8000           
+b  A_e  6.2000  <- argmin
+c  A_e  8.6000           
+c  A_f  7.4000  <- argmin
+pi_1: a: A_b, b: A_e, c: A_f   [changed, continue]
+
+--- Round 1: evaluate pi_1 ---
+pi_1: a: A_b, b: A_e, c: A_f
+state   a       b       c       d       e       f       g       h     
+------  ------  ------  ------  ------  ------  ------  ------  ------
+V^pi_1  8.4400  6.2000  7.4000  4.0000  4.0000  3.0000  1.0000  0.0000
+
+Improvement: one-step lookahead Q(s,a) using V^pi_1
+s  a    Q(s,a)           
+-  ---  ------  ---------
+a  A_b  8.4400  <- argmin
+a  A_c  9.1600           
+b  A_d  6.8000           
+b  A_e  6.2000  <- argmin
+c  A_e  8.6000           
+c  A_f  7.4000  <- argmin
+pi_2: a: A_b, b: A_e, c: A_f   [STABLE: pi_{k+1} == pi_{k}, stop]
+
+
+=== Supplement: start from path a->c->f->g->h (b keeps the stochastic pi_0) ===
+
+--- Round 0: evaluate pi_0 ---
+pi_0: a: A_c, b: A_d:0.70 / A_e:0.30, c: A_f
+state   a       b       c       d       e       f       g       h     
+------  ------  ------  ------  ------  ------  ------  ------  ------
+V^pi_0  9.2440  6.6200  7.4000  4.0000  4.0000  3.0000  1.0000  0.0000
+
+Improvement: one-step lookahead Q(s,a) using V^pi_0
+s  a    Q(s,a)           
+-  ---  ------  ---------
+a  A_b  8.7760  <- argmin
+a  A_c  9.2440           
+b  A_d  6.8000           
+b  A_e  6.2000  <- argmin
+c  A_e  8.6000           
+c  A_f  7.4000  <- argmin
+pi_1: a: A_b, b: A_e, c: A_f   [changed, continue]
+
+--- Round 1: evaluate pi_1 ---
+pi_1: a: A_b, b: A_e, c: A_f
+state   a       b       c       d       e       f       g       h     
+------  ------  ------  ------  ------  ------  ------  ------  ------
+V^pi_1  8.4400  6.2000  7.4000  4.0000  4.0000  3.0000  1.0000  0.0000
+
+Improvement: one-step lookahead Q(s,a) using V^pi_1
+s  a    Q(s,a)           
+-  ---  ------  ---------
+a  A_b  8.4400  <- argmin
+a  A_c  9.1600           
+b  A_d  6.8000           
+b  A_e  6.2000  <- argmin
+c  A_e  8.6000           
+c  A_f  7.4000  <- argmin
+pi_2: a: A_b, b: A_e, c: A_f   [STABLE: pi_{k+1} == pi_{k}, stop]
+
+
+=== Optimal values V* ===
+state  a       b       c       d       e       f       g       h     
+-----  ------  ------  ------  ------  ------  ------  ------  ------
+V*     8.4400  6.2000  7.4000  4.0000  4.0000  3.0000  1.0000  0.0000
+
+Optimal policy: a: A_b, b: A_e, c: A_f

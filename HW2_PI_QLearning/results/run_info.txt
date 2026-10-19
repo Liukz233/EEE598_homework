@@ -1,0 +1,2 @@
+Python 3.13.16, NumPy 2.5.3, Matplotlib 3.11.2
+Q-learning config: {'n_episodes': 5000, 'eps_start': 1.0, 'eps_end': 0.05, 'decay_episodes': 3000, 'alpha': 'visit', 'omega': 0.6}
