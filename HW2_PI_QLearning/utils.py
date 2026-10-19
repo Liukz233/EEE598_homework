@@ -123,7 +123,8 @@ def plot_learning_curve(costs: np.ndarray, v_star: float, path: Path, seed: int,
     ink, muted, grid = "#1f1f1f", "#6b6b6b", "#e3e3e3"
     raw_c, mean_c = "#9aa3ad", "#2b5c9e"
 
-    plt.rcParams.update({"font.size": 8, "font.family": "serif",
+    plt.rcParams.update({"font.size": 8, "font.family": "STIXGeneral",  # close to IEEE Times
+                         "mathtext.fontset": "stix",
                          "axes.edgecolor": muted, "axes.labelcolor": ink,
                          "xtick.color": muted, "ytick.color": muted})
     fig, ax = plt.subplots(figsize=(3.5, 2.3))
