@@ -1,5 +1,7 @@
 # HW2: policy iteration vs. Q-learning on the episodic shortest-path MDP
 
+Kangzheng Liu, Runyang Li (EEE 598, Arizona State University)
+
 Model-based policy iteration and model-free tabular Q-learning (seeds 0-4) on the
 8-state slippery graph from Fig. 1 of the assignment.
 
