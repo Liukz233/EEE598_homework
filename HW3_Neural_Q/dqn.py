@@ -107,11 +107,13 @@ class Replay:
                 torch.from_numpy(self.done[idx]))
 
 
-def td_target(target_net, c, s2, done):
+def td_target(target_net, c, s2, done, mask=True):
     """y = c                              if s' = h
-           c + gamma * min_a' Q-(s', a')  otherwise   (feasible a' only)"""
+           c + gamma * min_a' Q-(s', a')  otherwise   (feasible a' only)
+    mask=False is only for the ablation run: min over all six outputs."""
     with torch.no_grad():
-        q_next = masked(target_net(s2), s2)
+        q_next = target_net(s2)
+        q_next = masked(q_next, s2) if mask else q_next
         # h has no feasible action, so its min is +inf. torch.where picks 0 there;
         # (1 - done) * min_q would give 0 * inf = NaN and poison the batch.
         boot = torch.where(done, torch.zeros_like(c), q_next.min(dim=1).values)
@@ -153,7 +155,7 @@ def train(seed, cfg=BASE_CFG, log_first_batch=False):
             if buf.n < cfg['warmup']:
                 continue
             bs, ba, bc, bs2, bdone = buf.sample(cfg['batch'], rng)
-            y = td_target(target, bc, bs2, bdone)
+            y = td_target(target, bc, bs2, bdone, mask=cfg.get('mask_target', True))
             q = online(bs).gather(1, ba[:, None]).squeeze(1)
             loss = loss_fn(q, y)
             opt.zero_grad()

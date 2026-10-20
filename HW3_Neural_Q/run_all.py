@@ -1,7 +1,7 @@
 """
 Reproduces every number and figure in the HW3 report.
 
-    python run_all.py              # 5 seeds, evaluation, plots, sensitivity sweep (~20 min)
+    python run_all.py              # 5 seeds, evaluation, plots, sensitivity sweep (~25 min)
     python run_all.py --no-sweep   # 5 seeds, evaluation, plots only (~3 min)
 
 Outputs go to results/. Training lives in dqn.py and never sees the model;
@@ -181,6 +181,7 @@ def sweep(out, Q_star, V_star):
     huber1 = fixed_point(delta=1.0)
     configs = [
         ('baseline', {}),
+        ('no mask in target', dict(mask_target=False)),   # ablation: min over all outputs
         ('Huber delta=1', dict(loss='huber', huber_delta=1.0)),
         ('Huber delta=2', dict(loss='huber', huber_delta=2.0)),
         ('M = 1', dict(target_every=1)),
