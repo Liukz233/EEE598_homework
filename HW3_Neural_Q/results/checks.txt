@@ -1,0 +1,16 @@
+Trainable parameters: 1542  (8*32+32 + 32*32+32 + 32*6+6)
+Output slots: ['A_b', 'A_c', 'A_d', 'A_e', 'A_f', 'go']
+
+state  feasible actions  mask over slots
+-----  ----------------  ---------------
+a      A_b, A_c          110000         
+b      A_d, A_e          001100         
+c      A_e, A_f          000110         
+d      go                000001         
+e      go                000001         
+f      go                000001         
+g      go                000001         
+h      (terminal)        000000         
+
+env.step('A_b') from a returns only (s', cost, done) = ('b', 2, False)
+dqn.py does not import transitions() or policy_iteration.
