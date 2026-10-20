@@ -11,8 +11,8 @@ Tested with Python 3.13.16, NumPy 2.5.3, Matplotlib 3.11.2.
 
 ```
 pip install -r requirements.txt
-python run_all.py              # everything, ~40 s
-python run_all.py --no-sweep   # skip the hyperparameter sweep, ~5 s
+python run_all.py              # everything, ~30 s
+python run_all.py --no-sweep   # skip the sweep and the 40-seed noise check, ~5 s
 ```
 
 Each seed uses its own `np.random.default_rng(seed)`, so the numbers in `results/` come
@@ -44,6 +44,7 @@ tie-breaking. Evaluation uses eps = 0.
 - `q_table_vs_qstar.csv` - learned Q vs. Q* from PI
 - `seed4_learning_curve.png/.pdf` - episode cost + 100-episode rolling mean, seed 4
 - `sweep.csv` - sensitivity to alpha, final eps and number of episodes
+- `noise_check.csv` - predicted std of Q, sqrt(alpha*sigma^2/(2-alpha)), vs. measured std over seeds 0-39
 - `episode_costs.csv` - raw training costs, all seeds
 
 PI stops after two evaluations with pi* = (a: A_b, b: A_e, c: A_f) and V*(a) = 8.44.
@@ -51,8 +52,8 @@ All five Q-learning seeds give the same greedy policy (gap 0).
 
 ## AI disclosure
 
-Generative AI (Claude, Anthropic) was used to help draft and debug the code, including the
-policy-iteration and Q-learning implementations and the logging, table and plotting
-utilities, and to help draft and edit the report. The team checked the policy-iteration
-values by hand, reviewed the code, reproduced all results, and is responsible for everything
-reported.
+Generative AI (Claude, Anthropic) helped draft and debug the code (both algorithms and the
+logging, table and plotting utilities) and helped draft and edit the report. The authors
+derived the policy-iteration values, the improvement argument, the Q-learning hand check and
+the noise estimate by hand and checked them against the program output; they reviewed the
+code and are responsible for all reported results.
