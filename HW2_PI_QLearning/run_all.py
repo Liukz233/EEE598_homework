@@ -1,8 +1,8 @@
 """
 Reproduces every number and figure in the report.
 
-    python run_all.py               # PI + Q-learning (seeds 0-4) + sweep
-    python run_all.py --no-sweep    # skip the hyperparameter sweep (~1 min)
+    python run_all.py               # PI + Q-learning (seeds 0-4) + sweep + noise check
+    python run_all.py --no-sweep    # only PI + Q-learning (seeds 0-4), ~5 s
 
 Outputs go to results/.
 """
@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
-from mdp import BRANCHES, START, actions
+from mdp import BRANCHES, START, actions, transitions
 from policy_iteration import (PI0_PATH, PI0_STOCHASTIC, deterministic, evaluate,
                               lookahead, policy_iteration)
 from q_learning import greedy_policy, rollout_greedy, train
@@ -49,7 +49,7 @@ def part1_policy_iteration(out):
 def part2_q_learning(out, V_star, Q_star):
     rows, q_runs, all_costs = [], [], {}
     for seed in SEEDS:
-        Q, costs, trace = train(seed, trace_episodes=5 if seed == 0 else 0, **CFG)
+        Q, costs, trace, _ = train(seed, trace_episodes=5 if seed == 0 else 0, **CFG)
         all_costs[seed] = costs
         q_runs.append(Q)
         if seed == 0:
@@ -98,8 +98,8 @@ def part3_sweep(out, V_star, Q_star):
             for eps_end in (0.0, 0.05, 0.3):
                 n_opt, q_err = 0, []
                 for seed in SEEDS:
-                    Q, _, _ = train(seed, n_episodes=n_ep, eps_start=1.0, eps_end=eps_end,
-                                    decay_episodes=int(0.6 * n_ep), alpha=alpha, omega=0.6)
+                    Q, *_ = train(seed, n_episodes=n_ep, eps_start=1.0, eps_end=eps_end,
+                                  decay_episodes=int(0.6 * n_ep), alpha=alpha, omega=0.6)
                     choice = greedy_policy(Q, np.random.default_rng(1000 + seed))
                     gap = evaluate(deterministic(choice))[START] - V_star[START]
                     n_opt += abs(gap) < GAP_TOL
@@ -111,10 +111,33 @@ def part3_sweep(out, V_star, Q_star):
     print("\n=== Hyperparameter sweep ===\n" + utils.text_table(headers, rows, ".3f"))
 
 
+def part4_noise_check(out, V_star, Q_star, seeds=range(40)):
+    """Late in training the bootstrap is ~exact, so the target y = c + V*(s') only takes
+    two values (intended / slipped branch). Treating the update as Q <- (1-a)Q + a*y with
+    a ~ const gives Var(Q) = a*sigma^2/(2-a). Check that against the spread over 40 seeds."""
+    runs = [train(seed, **CFG) for seed in seeds]
+    rows = []
+    for s in BRANCHES:
+        for a in actions(s):
+            ys = [(p, c + V_star[s2]) for p, s2, c in transitions(s, a)]
+            mean_y = sum(p * y for p, y in ys)
+            sigma2 = sum(p * (y - mean_y) ** 2 for p, y in ys)
+            n_bar = np.mean([N[s][a] for _, _, _, N in runs])
+            lr = n_bar ** -CFG['omega']
+            pred = np.sqrt(lr * sigma2 / (2 - lr))
+            vals = np.array([Q[s][a] for Q, _, _, _ in runs])
+            rows.append([s, a, Q_star[s][a], sigma2, n_bar, lr, pred, vals.std(ddof=1), vals.mean()])
+    headers = ["s", "a", "Q*", "sigma^2", "mean visits", "alpha at mean visits",
+               "predicted std", f"measured std ({len(seeds)} seeds)", "mean Q"]
+    utils.write_csv(out / "noise_check.csv", headers, rows)
+    print("\n=== Noise check ===\n" + utils.text_table(headers, rows, ".4f"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default='results')
-    ap.add_argument('--no-sweep', action='store_true')
+    ap.add_argument('--no-sweep', action='store_true',
+                    help='skip the sensitivity sweep and the 40-seed noise check')
     args = ap.parse_args()
     out = Path(args.out)
 
@@ -123,6 +146,7 @@ def main():
     part2_q_learning(out, V_star, Q_star)
     if not args.no_sweep:
         part3_sweep(out, V_star, Q_star)
+        part4_noise_check(out, V_star, Q_star)
     utils.write_text(out / "run_info.txt", utils.env_info() + f"\nQ-learning config: {CFG}\n")
 
 

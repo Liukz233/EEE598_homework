@@ -85,7 +85,7 @@ def train(seed, n_episodes=5000, eps_start=1.0, eps_end=0.05,
             s = s2
         ep_cost.append(total)
 
-    return Q, np.array(ep_cost), trace
+    return Q, np.array(ep_cost), trace, N      # N = visit counts, for the noise check
 
 
 def greedy_policy(Q, rng):
